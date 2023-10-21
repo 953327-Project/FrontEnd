@@ -3,15 +3,15 @@
   
 	const apiURL = "http://127.0.0.1:5000/get_score_csv";
 
-	let proejcts = [];
+	let projects = [];
 	let selected;
 	  
 	onMount(async function() {
 		const response = await fetch(apiURL);
-		proejcts = await response.json();
+		projects = await response.json();
 
 		// sort array project by score.
-		proejcts.sort(function(a, b){
+		projects.sort(function(a, b){
 			return b.total_score - a.total_score;
 		})
 	});
@@ -21,12 +21,12 @@
 		let tempIndex = 0;
 
 		if(index == null){
-			proejcts.slice(tempIndex, 1);
+			projects.slice(tempIndex, 1);
 		}else{
-			proejcts.splice(index, 1);
+			projects.splice(index, 1);
 		}
 
-		proejcts = proejcts;
+		projects = projects;
 
 		//console.log(proejcts, index)
 	}
@@ -53,8 +53,8 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#if proejcts.length}
-						{#each proejcts as project, index}	
+				{#if projects.length}
+						{#each projects as project, index}	
 							<tr>
 								<td>{index+1}</td>
 								<td>{project.project_name}</td>
@@ -69,10 +69,10 @@
 			</tbody>
 		</table>
 
-	{#if proejcts.length}
+	{#if projects.length}
 		<form on:submit|preventDefault={handleSubmit}>
 			<select bind:value={selected}>
-				{#each proejcts as project, index}
+				{#each projects as project, index}
 					<option value={index}>
 						{project.project_name}
 					</option>
@@ -86,10 +86,10 @@
 	{:else}
 		<button on:click={ async () => {
 			const response = await fetch(apiURL);
-			proejcts = await response.json();
+			projects = await response.json();
 
 			// sort array project by score.
-			proejcts.sort(function(a, b){
+			projects.sort(function(a, b){
 				return b.total_score - a.total_score;
 			})
 		}}>Refresh</button>
@@ -112,8 +112,8 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#if proejcts.length}
-					{#each proejcts as project}	
+			{#if projects.length}
+					{#each projects as project}	
 						<tr>
 							<td>{project.project_name}</td>
 							<td>{project.code_comprehen}</td>
@@ -133,5 +133,4 @@
 	</table>
 
   </div>
-  
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
