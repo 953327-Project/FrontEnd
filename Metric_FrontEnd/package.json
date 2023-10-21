@@ -12,5 +12,9 @@
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
     "svelte": "^4.0.5",
     "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "fusioncharts": "^3.21.1",
+    "svelte-fusioncharts": "^1.0.0"
   }
 }
