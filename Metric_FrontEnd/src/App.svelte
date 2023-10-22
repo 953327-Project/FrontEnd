@@ -1,10 +1,17 @@
 <script>
 	import { onMount } from "svelte";
+	// @ts-ignore
 	import FusionCharts from "fusioncharts";
+	// @ts-ignore
   	import Charts from "fusioncharts/fusioncharts.charts";
+	// @ts-ignore
   	import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
-  	import SvelteFC, { fcRoot } from "svelte-fusioncharts";
+	// @ts-ignore
+  	import { fcRoot } from "svelte-fusioncharts";
+	import Footer from "./lib/Footer.svelte"
+	// @ts-ignore
   	fcRoot(FusionCharts, Charts, FusionTheme);
+	
 	const apiURL = "http://127.0.0.1:5000/get_score_csv";
 
 	let projects = [];
@@ -17,69 +24,76 @@
 		projects.sort(function(a, b){
 			return b.total_score - a.total_score;
 		})
-		const chartData = projects.map(item => ({
-  label: item.project_name,
-  code_comprehen: item.code_comprehen,
-  doc_comprehen: item.doc_comprehen,
-  code_reusability: item.code_reusability,
-  built_reusability: item.built_reusability,
-  test_quality: item.test_quality,
-  team_activeness: item.team_activeness
-}));
 
-const dataSource = {
-  chart: {
-    caption: "Project Metrics",
-    subcaption: "Comparison of Various Attributes",
-    xaxisname: "Project Name",
-    yaxisname: "Value",
-    theme: "fusion",
-	showValues: "1",
-  },
-  categories: [
-    {
-      category: chartData.map(item => ({ label: item.label }))
-    }
-  ],
-  dataset: [
-    {
-      seriesname: "Code Comprehension",
-      data: chartData.map(item => ({ value: item.code_comprehen }))
-    },
-    {
-      seriesname: "Doc Comprehension",
-      data: chartData.map(item => ({ value: item.doc_comprehen }))
-    },
-    {
-      seriesname: "Code Reusability",
-      data: chartData.map(item => ({ value: item.code_reusability }))
-    },
-    {
-      seriesname: "Built Reusability",
-      data: chartData.map(item => ({ value: item.built_reusability }))
-    },
-    {
-      seriesname: "Test Quality",
-      data: chartData.map(item => ({ value: item.test_quality }))
-    },
-    {
-      seriesname: "Team Activeness",
-      data: chartData.map(item => ({ value: item.team_activeness }))
-    }
-  ]
-};
-FusionCharts.ready(function() {
-  const chart = new FusionCharts({
-    type: "mscolumn2d",
-    renderAt: "chart-container",
-    width: "100%",
-    height: "400",
-    dataFormat: "json",
-    dataSource
-  });
-  chart.render();
-});
+		chartRander(projects)
 	});
+
+	function chartRander(projectArray) {
+			const chartData = projectArray.map(item => ({
+			label: item.project_name,
+			code_comprehen: item.code_comprehen,
+			doc_comprehen: item.doc_comprehen,
+			code_reusability: item.code_reusability,
+			built_reusability: item.built_reusability,
+			test_quality: item.test_quality,
+			team_activeness: item.team_activeness
+		}));
+
+		const dataSource = {
+		chart: {
+			caption: "Project Metrics Chart",
+			subcaption: "Comparison of Various Attributes",
+			xaxisname: "Project Name",
+			yaxisname: "Value",
+			theme: "fusion",
+			showValues: "1",
+		},
+		categories: [
+			{
+			category: chartData.map(item => ({ label: item.label }))
+			}
+		],
+		dataset: [
+			{
+			seriesname: "Code Comprehension",
+			data: chartData.map(item => ({ value: item.code_comprehen*10 }))
+			},
+			{
+			seriesname: "Doc Comprehension",
+			data: chartData.map(item => ({ value: item.doc_comprehen*10 }))
+			},
+			{
+			seriesname: "Code Reusability",
+			data: chartData.map(item => ({ value: item.code_reusability*10 }))
+			},
+			{
+			seriesname: "Built Reusability",
+			data: chartData.map(item => ({ value: item.built_reusability*10 }))
+			},
+			{
+			seriesname: "Test Quality",
+			data: chartData.map(item => ({ value: item.test_quality }))
+			},
+			{
+				//adjust scale
+			seriesname: "Team Activeness",
+			data: chartData.map(item => ({ value: item.team_activeness/1000 }))
+			}
+		]
+		};
+		FusionCharts.ready(function() {
+		const chart = new FusionCharts({
+			type: "mscolumn2d",
+			renderAt: "chart-container",
+			width: "100%",
+			height: "400",
+			dataFormat: "json",
+			dataSource
+		});
+
+		chart.render();
+		});
+		}
 
 
 	function deleteProject(index){
@@ -87,13 +101,13 @@ FusionCharts.ready(function() {
 
 		if(index == null){
 			projects.slice(tempIndex, 1);
+			chartRander(projects)
 		}else{
 			projects.splice(index, 1);
+			chartRander(projects)
 		}
 
 		projects = projects;
-
-		//console.log(proejcts, index)
 	}
 
 	function handleSubmit() {
@@ -157,6 +171,8 @@ FusionCharts.ready(function() {
 			projects.sort(function(a, b){
 				return b.total_score - a.total_score;
 			})
+
+			chartRander(projects)
 		}}>Refresh</button>
 	{/if}
 
@@ -181,12 +197,13 @@ FusionCharts.ready(function() {
 					{#each projects as project}	
 						<tr>
 							<td>{project.project_name}</td>
-							<td>{project.code_comprehen}</td>
-							<td>{project.doc_comprehen}</td>
-							<td>{project.code_reusability}</td>
-							<td>{project.built_reusability}</td>
-							<td>{project.test_quality}</td>
-							<td>{project.team_activeness}</td>
+							<!-- Fixed decimal digit to 2 -->
+							<td>{(Math.round((project.code_comprehen*10)*100)/100).toFixed(2)}</td>
+							<td>{(Math.round((project.doc_comprehen*10)*100)/100).toFixed(2)}</td>
+							<td>{(Math.round((project.code_reusability*10)*100)/100).toFixed(2)}</td>
+							<td>{(Math.round((project.built_reusability*10)*100)/100).toFixed(2)}</td>
+							<td>{(Math.round((project.test_quality)*100)/100).toFixed(2)}</td>
+							<td>{(Math.round((project.team_activeness/1000)*100)/100).toFixed(2)}</td>
 						</tr>
 					{/each}
 			{:else}
@@ -199,5 +216,7 @@ FusionCharts.ready(function() {
 
   </div>
   <div id="chart-container"></div>
+
+  <Footer/>
 
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
